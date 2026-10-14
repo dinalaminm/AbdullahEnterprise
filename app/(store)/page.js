@@ -30,8 +30,8 @@ function Banner() {
   return (
     <section className="banner">
       <div className="slides" id="slides" style={{ transform: `translateX(-${i * 100}%)` }}>
-        {SLIDES.map((s) => (
-          <div key={s.t} className="slide" style={{ background: s.bg }} onClick={() => router.push(s.go)}>
+        {SLIDES.map((s, k) => (
+          <div key={s.t} className={'slide' + (k === i ? ' act' : '')} style={{ background: s.bg }} onClick={() => router.push(s.go)}>
             <div><h2>{s.t}</h2><p>{s.p}</p><span className="cta">Shop Now</span></div>
             <div className="big">{s.e}</div>
           </div>
@@ -51,6 +51,12 @@ export default function Home() {
   return (
     <>
       <Banner />
+      <section className="trust">
+        <div><i className="fas fa-truck-fast" />Fast delivery</div>
+        <div><i className="fas fa-hand-holding-dollar" />Cash on delivery</div>
+        <div><i className="fas fa-rotate-left" />7-day returns</div>
+        <div><i className="fas fa-shield-halved" />Secure payment</div>
+      </section>
       <section className="shortcut-icons">
         {CATS.map((c) => (
           <div key={c.n} className="icon-item" onClick={() => router.push('/list?cat=' + c.n)}>
