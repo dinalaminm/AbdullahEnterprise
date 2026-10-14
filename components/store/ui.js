@@ -57,7 +57,18 @@ export function Stars({ r }) {
 
 export function ProdImg({ p, className = '' }) {
   const [fb, setFb] = useState(false);
-  return <img className={className} src={fb ? svgImg(p) : pimg(p)} alt={p.name} loading="lazy" onError={() => setFb(true)} />;
+  const [ok, setOk] = useState(false);
+  return (
+    <img
+      className={className + (ok ? ' loaded' : '')}
+      src={fb ? svgImg(p) : pimg(p)}
+      alt={p.name}
+      loading="lazy"
+      ref={(el) => { if (el && el.complete && el.naturalWidth) setOk(true); }}
+      onLoad={() => setOk(true)}
+      onError={() => { setFb(true); setOk(false); }}
+    />
+  );
 }
 
 export function Empty({ icon = 'fas fa-box-open', text, to, label }) {

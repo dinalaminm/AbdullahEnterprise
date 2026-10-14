@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { S, ui, init, toast, openSheet, closeSheet, cartCount, rememberSearch } from '../../lib/store/core';
 import { useStore } from './ui';
+import { startFx } from '../../lib/store/fx';
 import Sheet from './Sheet';
 
 function Header() {
@@ -51,7 +52,7 @@ function Header() {
           <i className="fas fa-microphone mic-icon" title="Voice search" onClick={voice} />
         </div>
         <div className="header-icons">
-          <div className="hi" onClick={() => go('/cart')}><i className="fas fa-shopping-cart" /><span className="hbadge" id="hCart" style={{ display: n ? 'flex' : 'none' }}>{n}</span></div>
+          <div className="hi" onClick={() => go('/cart')}><i key={"i" + n} className="fas fa-shopping-cart" /><span key={"b" + n} className="hbadge" id="hCart" style={{ display: n ? 'flex' : 'none' }}>{n}</span></div>
           <div className="hi" onClick={() => openSheet('help')}><i className="fas fa-comment-dots" /></div>
         </div>
       </div>
@@ -75,7 +76,7 @@ function BottomNav() {
   const active = map[seg] ?? 'home';
   const item = (key, to, icon, label, badge) => (
     <div className={'nav-item' + (active === key ? ' active' : '')} onClick={() => router.push(to)}>
-      {badge ? <div className="cart-badge-wrapper"><i className={icon} /><span className="badge" id="nCart" style={{ display: n ? 'flex' : 'none' }}>{n}</span></div> : <i className={icon} />}
+      {badge ? <div className="cart-badge-wrapper"><i className={icon} /><span key={n} className="badge" id="nCart" style={{ display: n ? 'flex' : 'none' }}>{n}</span></div> : <i className={icon} />}
       <span>{label}</span>
     </div>
   );
@@ -89,13 +90,42 @@ function BottomNav() {
   );
 }
 
+function Skeleton() {
+  return (
+    <>
+      <div className="sk sk-banner" />
+      <div className="sk sk-row" />
+      <div className="sk-grid">{[0, 1, 2, 3].map((k) => <div key={k} className="sk sk-card" />)}</div>
+    </>
+  );
+}
+
+function Footer() {
+  const router = useRouter();
+  return (
+    <footer className="site-footer">
+      <div className="ft-top">
+        <div className="ft-brand">
+          <b><span className="ft-logo">🛍️</span>Abdullah Store</b>
+          Quality products, honest prices and fast delivery across Bangladesh.
+        </div>
+        <div className="ft-col"><h4>Shop</h4><span onClick={() => router.push('/')}>Home</span><span onClick={() => router.push('/explore')}>All categories</span><span onClick={() => router.push('/list?cat=Offers')}>Offers</span></div>
+        <div className="ft-col"><h4>Support</h4><span onClick={() => router.push('/orders')}>Track order</span><span onClick={() => openSheet('help')}>Help &amp; contact</span><span>{S.settings.phone}</span></div>
+      </div>
+      <div className="ft-pay"><span>Cash on Delivery</span><span>bKash</span><span>Nagad</span><span>Rocket</span></div>
+      <div className="ft-copy">© {new Date().getFullYear()} Abdullah Store. All rights reserved.</div>
+    </footer>
+  );
+}
+
 export default function Shell({ children }) {
   useStore();
-  useEffect(() => { init(); }, []);
+  useEffect(() => { init(); const stop = startFx(); return stop; }, []);
   return (
     <>
       <Suspense fallback={<header className="top-header" />}><Header /></Suspense>
-      <main id="app">{ui.ready ? children : null}</main>
+      <main id="app">{ui.ready ? children : <Skeleton />}</main>
+      {ui.ready && <Footer />}
       <BottomNav />
       <div id="sheet" className={ui.sheet ? 'show' : ''} onClick={(e) => { if (e.target.id === 'sheet') closeSheet(); }}>
         <div className="box" id="sheetBox">{ui.sheet ? <Sheet name={ui.sheet.name} {...ui.sheet.props} /> : null}</div>
